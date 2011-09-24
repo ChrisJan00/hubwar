@@ -19,8 +19,12 @@ function prepareGame() {
 		height: 21
 	}
 	
+	turnDelay = 2000; // ms
+	turnTimer = 0;
+	selectedComputer = -1;
+	playerIndex = 1;
 	
-	
+	Packets = [];
 	
 	graphics.linksLayer = graphics.createLayer();
 	graphics.computersLayer = graphics.createLayer();
@@ -44,7 +48,11 @@ function launchGame() {
 }
 
 function update(dt) {
-	//player.update(dt);
+	turnTimer -= dt;
+	if (turnTimer <= 0) {
+		turnTimer = turnDelay;
+		manageTurn();
+	}
 }
 
 function draw(dt) {
@@ -103,8 +111,8 @@ function drawComputer(index) {
 	else
 	switch(ComputerList[index].owner) {
 		case 0: ctxt.fillStyle = "#A0A0A0"; break;
-		case 1: ctxt.fillStyle = "#FF0000"; break;
-		case 2: ctxt.fillStyle = "#0000FF"; break;
+		case 1: ctxt.fillStyle = "#FF4444"; break;
+		case 2: ctxt.fillStyle = "#4444FF"; break;
 	}
 		
 	ctxt.beginPath();
@@ -132,12 +140,28 @@ function pressed()
 	if (computerIndex == -1)
 		return;
 		
-	if (ComputerList[computerIndex].selected)
-		ComputerList[computerIndex].selected = false;
+//	if (ComputerList[computerIndex].selected)
+//		ComputerList[computerIndex].selected = false;
+//	else
+//		ComputerList[computerIndex].selected = true;
+
+	if (ComputerList[computerIndex].owner == playerIndex)
+		selectedComputer = computerIndex;
 	else
-		ComputerList[computerIndex].selected = true;
+		if ((selectedComputer != -1) && 
+			(ComputerList[selectedComputer].links.indexOf(computerIndex) != -1)) {
+			var newOrder = {
+				from: selectedComputer,
+				to: computerIndex,
+				threshold: ComputerList[selectedComputer].pop,
+				strength: Math.floor(ComputerList[selectedComputer].pop / 2),
+				loop: false
+			}
+			ComputerList[selectedComputer].orders.push(newOrder);
+			selectedComputer = -1;
+		}
 		
-	drawComputer(computerIndex);
+	// drawComputer(computerIndex);
 	graphics.redraw();
 }
 
@@ -152,11 +176,69 @@ function drawPop(index)
 	
 	ctxt.clearRect( x, y, xside, yside );
 	
-	var string = ""+ComputerList[index].pop;
+	var string = ""+Math.floor(ComputerList[index].pop);
 	var textLen = ctxt.measureText( string ).width;
 		
 	ctxt.strokeStyle = "#000000";
 	ctxt.strokeText(string, x + xside/2 - textLen/2, y + yside/2 + 5);
 		
 	graphics.mark(ComputerList[index].x * xside, ComputerList[index].y * yside, xside, yside);
+}
+
+function manageTurn() 
+{
+	// first: increase population
+	for (var i=0; i<ComputerList.length; i++)
+		if (ComputerList[i].owner != 0)
+			ComputerList[i].pop += ComputerList[i].rate;
+		
+	// each computer executes its orders
+	for (var i=0; i<ComputerList.length; i++) {
+		for (var o=0; o<ComputerList[i].orders.length; o++) {
+			var order = ComputerList[i].orders[o];
+			if (ComputerList[i].pop >= order.threshold) {
+				var newFleet = {
+					pos : order.from,
+					dest : order.to,
+					pop : order.strength,
+					owner : ComputerList[i].owner
+				}
+				Packets.push(newFleet)
+				ComputerList[i].pop -= order.strength;
+				
+				if (!order.loop) {
+					ComputerList[i].orders.splice(o, 1);
+					o--;
+				}
+			}
+		}
+	}
+	
+	// the packets advance
+	for (var i=0; i<Packets.length; i++) {
+		var packet = Packets[i];
+		// conflicts
+		var destComp = ComputerList[packet.dest];
+		if (destComp.owner != packet.owner) {
+			if (destComp.pop > packet.pop) {
+				destComp.pop -= packet.pop;
+			} else {
+				packet.pop -= destComp.pop;
+				destComp.pop = packet.pop;
+				destComp.owner = packet.owner;
+				// redraw computer
+				drawComputer(packet.dest);
+			}
+		} else {
+			destComp.pop += packet.pop;
+		}
+	}
+	
+	// delete all used packets
+	Packets = [];
+	
+	for (var i=0; i<ComputerList.length; i++)
+		drawPop(i);
+		
+	graphics.redraw();
 }
