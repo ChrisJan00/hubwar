@@ -1,6 +1,7 @@
 var graphics = new GraphicsManager();
 var gameControl = new GameControl();
 var mouseManager = new MouseManager();
+//var programmingDialog = new ProgrammingDialog();
 
 // grid is 21 x 21
 
@@ -32,7 +33,6 @@ function prepareGame() {
 	graphics.computersLayer = graphics.createLayer();
 	graphics.popLayer = graphics.createLayer();
 	
-	graphics.getContext(graphics.popLayer).font = "10px";
 	
 	var ctxt = graphics.getContext( graphics.linksLayer );
 	ctxt.fillStyle = "#FFFFFF";
@@ -66,7 +66,7 @@ function draw(dt) {
 	ctxt.fillRect(200, 5, 400, 15);
 	ctxt.fillStyle = "#00FF00";
 	if (turnTimer>0)
-		ctxt.fillRect(200, 5, 400 * turnTimer / turnDelay, 15);
+		ctxt.fillRect(200, 5, 400 * (1 - turnTimer / turnDelay), 15);
 	ctxt.strokeRect(200,5,400,15);
 	graphics.mark(200,5,400,15);
 	graphics.redraw();
@@ -186,8 +186,10 @@ function pressed()
 	if (computerIndex == -1)
 		return;
 
-	if (ComputerList[computerIndex].owner == playerIndex && selectedComputer == -1)
+	if (ComputerList[computerIndex].owner == playerIndex && selectedComputer == -1) {
 		selectedComputer = computerIndex;
+		//programmingDialog.start(computerIndex);
+	}
 	else
 		if ((selectedComputer != -1) && 
 			(ComputerList[selectedComputer].links.indexOf(computerIndex) != -1)) {
@@ -199,6 +201,7 @@ function pressed()
 				loop: false
 			}
 			ComputerList[selectedComputer].orders.push(newOrder);
+			drawOrders(selectedComputer);
 			selectedComputer = -1;
 		}
 		
@@ -219,7 +222,8 @@ function drawPop(index)
 	
 	var string = ""+Math.floor(ComputerList[index].pop);
 	var textLen = ctxt.measureText( string ).width;
-		
+	
+	ctxt.font = "10px";	
 	ctxt.strokeStyle = "#000000";
 	ctxt.strokeText(string, x + xside/2 - textLen/2, y + yside/2 + 5);
 		
@@ -257,8 +261,10 @@ function manageTurn()
 		}
 		// purge order lists
 		for (var o = ComputerList[i].orders.length - 1; o>=0; o--)
-			if (ComputerList[i].orders[o].deleteNow)
+			if (ComputerList[i].orders[o].deleteNow) {
 				ComputerList[i].orders.splice(o, 1);
+				drawOrders(i);
+			}
 	
 	}
 	
@@ -289,4 +295,36 @@ function manageTurn()
 		drawPop(i);
 		
 	graphics.redraw();
+}
+
+function drawOrders(index) {
+	var ctxt = graphics.getContext( graphics.popLayer );
+	var xside = graphics.width / grid.width;
+	var yside = graphics.height / grid.height;
+	
+	var x = (ComputerList[index].x + 1) * xside;
+	var y = ComputerList[index].y * yside + yside/2;
+		
+	ctxt.clearRect( x, y - 8, 12 * 8, 16);
+				
+	if (ComputerList[index].orders.length > 0) {
+		// draw first order
+		ctxt.font = "8px";
+		
+		var order = ComputerList[index].orders[0];
+		
+		var extrachar = ComputerList[index].orders.length > 1 ? "+":"";
+		var looping = order.loop ? "~" : "";
+		//var string = "("+ order.to +","+ Math.floor(order.strength) +","+ Math.floor(order.threshold) +
+		//	")"+ looping + extrachar;
+		var string = ">"+Math.floor(order.threshold)+"? "+Math.floor(order.strength)+looping+" "+extrachar;
+		
+		var textLen = ctxt.measureText( string ).width;
+			
+		ctxt.strokeStyle = "#000000";
+		ctxt.strokeText(string, x, y + 4);
+			
+		graphics.mark(x, y - 8, 12 * 8, 16);
+		graphics.redraw();
+	}
 }
