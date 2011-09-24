@@ -8,8 +8,26 @@ ProgrammingWindow = function() {
 	
 	self.update = function() {
 		// Add order
-		self.output.innerHTML="<form>";
+		var text = "<form>"
+		for (var i = 0;i<ComputerList.length;i++) {
+			if (ComputerList[i].owner == 1)
+			for (var j=0;j<ComputerList[i].orders.length;j++)
+				text += self.printOrder(ComputerList[i].orders[j]);
+		}
+		
+		text += "</form>"
+		self.output.innerHTML = text;
 	}
+	
+	self.printOrder = function( order ) {
+		
+		var withloop = order.loop? " every turn" : " once";
+		var string = indexToLetter( order.from )+" : "+"when > "+order.threshold+" packets send "+
+			order.strength+" to "+indexToLetter( order.to ) + withloop + "<br>";
+		
+		return string;
+	}
+	
 	
 	
 	self.Aprint = function(_who, text) 

@@ -85,6 +85,7 @@ function drawComputers() {
 	
 		drawComputer(i);
 		drawPop(i);
+		drawLabel(i);
 		
 		for (var j=0; j<ComputerList[i].links.length; j++) {
 			var dest = ComputerList[i].links[j];
@@ -198,12 +199,13 @@ function pressed()
 			var newOrder = {
 				from: selectedComputer,
 				to: computerIndex,
-				threshold: ComputerList[selectedComputer].pop/3,
+				threshold: Math.ceil(ComputerList[selectedComputer].pop/3),
 				strength: Math.floor(ComputerList[selectedComputer].pop / 2),
 				loop: false
 			}
 			ComputerList[selectedComputer].orders.push(newOrder);
 			drawOrders(selectedComputer);
+			programmingDialog.update();
 			selectedComputer = -1;
 		}
 		
@@ -232,10 +234,34 @@ function drawPop(index)
 	graphics.mark(ComputerList[index].x * xside, ComputerList[index].y * yside, xside, yside);
 }
 
+function drawLabel(index) 
+{
+	var ctxt = graphics.getContext( graphics.popLayer );
+	var xside = graphics.width / grid.width;
+	var yside = graphics.height / grid.height;
+	
+	var x = ComputerList[index].x * xside;
+	var y = ComputerList[index].y * yside;
+	
+	ctxt.clearRect( x, y - 8, 30, 16 );
+	
+	var string = ""+indexToLetter(index);
+	var textLen = ctxt.measureText( string ).width;
+	
+	ctxt.font = "10px";	
+	ctxt.strokeStyle = "#000000";
+	ctxt.strokeText(string, x, y);
+		
+	graphics.mark(x, y - 8, 30, 16);
+	graphics.redraw();
+}
+	
 function manageTurn() 
 {
 	if (Paused)
 		return;
+		
+	var ordersChanged = false;
 		
 	// first: increase population
 	for (var i=0; i<ComputerList.length; i++)
@@ -266,6 +292,7 @@ function manageTurn()
 			if (ComputerList[i].orders[o].deleteNow) {
 				ComputerList[i].orders.splice(o, 1);
 				drawOrders(i);
+				ordersChanged = true;
 			}
 	
 	}
@@ -297,6 +324,8 @@ function manageTurn()
 		drawPop(i);
 		
 	graphics.redraw();
+	if (ordersChanged)
+		programmingDialog.update();
 }
 
 function drawOrders(index) {
@@ -319,7 +348,8 @@ function drawOrders(index) {
 		var looping = order.loop ? "~" : "";
 		//var string = "("+ order.to +","+ Math.floor(order.strength) +","+ Math.floor(order.threshold) +
 		//	")"+ looping + extrachar;
-		var string = ">"+Math.floor(order.threshold)+"? "+Math.floor(order.strength)+looping+" "+extrachar;
+		var string = ">"+Math.floor(order.threshold)+"? "+Math.floor(order.strength)+" -> " +
+			indexToLetter(order.to)+" "+looping+" "+extrachar;
 		
 		var textLen = ctxt.measureText( string ).width;
 			
@@ -330,3 +360,10 @@ function drawOrders(index) {
 		graphics.redraw();
 	}
 }
+
+
+function indexToLetter( index ) 
+{
+	return String.fromCharCode( index + String.charCodeAt('A'));
+}
+
