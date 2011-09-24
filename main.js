@@ -50,22 +50,26 @@ function launchGame() {
 }
 
 function update(dt) {
-	turnTimer -= dt;
-	if (turnTimer <= 0) {
-		turnTimer = turnDelay;
-		manageTurn();
+	if (!Paused) {
+		turnTimer -= dt;
+		if (turnTimer <= 0) {
+			turnTimer = turnDelay;
+			manageTurn();
+		}
 	}
 }
 
 function draw(dt) {
-//	player.undraw(dt);
-//	player.draw(dt);
-//	if (lightsManager.dirty) {
-//		lightsManager.computeLights();
-//		graphics.redraw();
-//		lightsManager.dirty = false;
-//	}
-	
+	var ctxt = graphics.getContext(graphics.popLayer);
+	ctxt.fillStyle = "#FFFFFF";
+	ctxt.strokeStyle = "#000000";
+	ctxt.fillRect(200, 5, 400, 15);
+	ctxt.fillStyle = "#00FF00";
+	if (turnTimer>0)
+		ctxt.fillRect(200, 5, 400 * turnTimer / turnDelay, 15);
+	ctxt.strokeRect(200,5,400,15);
+	graphics.mark(200,5,400,15);
+	graphics.redraw();
 }
 
 function drawComputers() {
