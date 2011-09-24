@@ -1,7 +1,7 @@
 var graphics = new GraphicsManager();
 var gameControl = new GameControl();
 var mouseManager = new MouseManager();
-//var programmingDialog = new ProgrammingDialog();
+var programmingDialog = new ProgrammingWindow();
 
 // grid is 21 x 21
 
@@ -28,6 +28,8 @@ function prepareGame() {
 	Paused = false;
 	
 	Packets = [];
+	
+	programmingDialog.init();
 	
 	graphics.linksLayer = graphics.createLayer();
 	graphics.computersLayer = graphics.createLayer();
