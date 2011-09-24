@@ -52,7 +52,7 @@ ComputerList = [
 	},
    	// 5
 	{
-		x: 16,
+		x: 15,
 		y: 10,
 		pop: 1,
 		rate: 1,
