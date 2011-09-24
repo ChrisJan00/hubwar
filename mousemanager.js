@@ -88,9 +88,9 @@ var MouseManager = function() {
 	}
 	
 	self.updateMousePosition = function( ev ) {
-		if (ev.layerX || ev.layerX == 0) { // Firefox
-	    	self.x = ev.layerX - self.xoffset;
-	    	self.y = ev.layerY - self.yoffset;
+		if (ev.pageX || ev.pageX == 0) { // Firefox
+	    	self.x = ev.pageX - self.xoffset;
+	    	self.y = ev.pageY - self.yoffset;
 	   	} else if (ev.offsetX || ev.offsetX == 0) { // Opera
 		 	self.x = ev.offsetX;
 	    	self.y = ev.offsetY;
