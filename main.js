@@ -24,6 +24,8 @@ function prepareGame() {
 	selectedComputer = -1;
 	playerIndex = 1;
 	
+	Paused = false;
+	
 	Packets = [];
 	
 	graphics.linksLayer = graphics.createLayer();
@@ -87,7 +89,7 @@ function drawComputers() {
 			var y2 = (ComputerList[dest].y + 0.5) * yside;
 			
 			ctxt2.strokeStyle = "#404040";
-			ctxt2.linewidth = 4
+			ctxt2.lineWidth = 2
 		
 			ctxt2.beginPath();
 			ctxt2.moveTo(x,y);
@@ -111,8 +113,8 @@ function drawComputer(index) {
 	else
 	switch(ComputerList[index].owner) {
 		case 0: ctxt.fillStyle = "#A0A0A0"; break;
-		case 1: ctxt.fillStyle = "#FF4444"; break;
-		case 2: ctxt.fillStyle = "#4444FF"; break;
+		case 1: ctxt.fillStyle = "#4444FF"; break;
+		case 2: ctxt.fillStyle = "#FF4444"; break;
 	}
 		
 	ctxt.beginPath();
@@ -133,8 +135,46 @@ function findComputer(x,y) {
 	return -1;
 }
 
+function managePause() {
+	var xside = graphics.width / grid.width;
+	var yside = graphics.height / grid.height;
+	var x = graphics.width / 2 - xside / 2;
+	var y = graphics.height / 2 - yside / 2;
+	
+	if (!Paused) {
+		Paused = true;
+		
+		var ctxt = graphics.getContext( graphics.computersLayer );
+		
+		ctxt.fillStyle = "#44FF44";
+		ctxt.beginPath();
+		ctxt.moveTo(x,y);
+		ctxt.lineTo(x + xside, y+yside/2);
+		ctxt.lineTo(x, y+yside);
+		ctxt.closePath();
+		ctxt.fill();
+		graphics.mark(x,y,xside,yside);
+	} else {
+		if (mouseManager.x >= x && mouseManager.x <= x + xside &&
+			mouseManager.y >= y && mouseManager.y <= y + yside)
+			{
+				Paused = false;
+				var ctxt = graphics.getContext( graphics.computersLayer );
+				ctxt.clearRect(x,y,xside,yside);
+				graphics.mark(x,y,xside,yside);
+			}
+	}
+	
+	graphics.redraw();
+}
+
 function pressed() 
 {
+	managePause();
+	
+	if (!Paused)
+		return;
+		
 	// find which computer was pressed
 	var computerIndex = findComputer(mouseManager.x, mouseManager.y);
 	if (computerIndex == -1)
@@ -187,6 +227,9 @@ function drawPop(index)
 
 function manageTurn() 
 {
+	if (Paused)
+		return;
+		
 	// first: increase population
 	for (var i=0; i<ComputerList.length; i++)
 		if (ComputerList[i].owner != 0)
