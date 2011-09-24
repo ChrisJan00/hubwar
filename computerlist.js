@@ -3,33 +3,94 @@
 ComputerList = [
 	// 0
 	{
-		x: 2,
+		x: 10,
 		y: 2,
-		pop: 10,
-		rate: 3,
+		pop: 3,
+		rate: 1,
 		links: [ 1, 2 ],
-		owner: 0,
+		owner: 1,
 		orders: [],
 	},
 	// 1
 	{
-		x: 18,
-		y: 2,
-		pop: 10,
-		rate: 3,
-		links: [ 0, 2 ],
+		x: 7,
+		y: 5,
+		pop: 1,
+		rate: 1,
+		links: [ 0, 4 ],
 		owner: 0,
 		orders: [],
 	},
 	// 2
 	{
+		x: 13,
+		y: 5,
+		pop: 1,
+		rate: 1,
+		links: [ 0, 4, 5 ],
+		owner: 0,
+		orders: [],
+	},
+	// 3
+	{
+		x: 4,
+		y: 10,
+		pop: 1,
+		rate: 1,
+		links: [ 4, 6 ],
+		owner: 0,
+		orders: [],
+	},
+ 	// 4
+	{
+		x: 10,
+		y: 10,
+		pop: 1,
+		rate: 1,
+		links: [ 1, 2, 3, 5, 6, 7 ],
+		owner: 0,
+		orders: [],
+	},
+   	// 5
+	{
+		x: 17,
+		y: 10,
+		pop: 1,
+		rate: 1,
+		links: [ 2, 4 ],
+		owner: 0,
+		orders: [],
+	},
+	// 6
+	{
+		x: 7,
+		y: 15,
+		pop: 1,
+		rate: 1,
+		links: [ 3, 4, 8 ],
+		owner: 0,
+		orders: [],
+	},
+	// 7
+	{
+		x: 13,
+		y: 15,
+		pop: 1,
+		rate: 1,
+		links: [ 4, 8 ],
+		owner: 0,
+		orders: [],
+	},
+	// 8
+	{
 		x: 10,
 		y: 18,
-		pop: 10,
-		rate: 3,
-		links: [ 0, 1 ],
+		pop: 1,
+		rate: 1,
+		links: [ 6, 7 ],
 		owner: 0,
 		orders: [],
 	}
-	
+
 ]
+
