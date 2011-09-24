@@ -24,6 +24,8 @@ function prepareGame() {
 	selectedComputer = -1;
 	playerIndex = 1;
 	
+	Paused = false;
+	
 	Packets = [];
 	
 	graphics.linksLayer = graphics.createLayer();
@@ -87,7 +89,7 @@ function drawComputers() {
 			var y2 = (ComputerList[dest].y + 0.5) * yside;
 			
 			ctxt2.strokeStyle = "#404040";
-			ctxt2.linewidth = 4
+			ctxt2.lineWidth = 2
 		
 			ctxt2.beginPath();
 			ctxt2.moveTo(x,y);
@@ -111,8 +113,8 @@ function drawComputer(index) {
 	else
 	switch(ComputerList[index].owner) {
 		case 0: ctxt.fillStyle = "#A0A0A0"; break;
-		case 1: ctxt.fillStyle = "#FF4444"; break;
-		case 2: ctxt.fillStyle = "#4444FF"; break;
+		case 1: ctxt.fillStyle = "#4444FF"; break;
+		case 2: ctxt.fillStyle = "#FF4444"; break;
 	}
 		
 	ctxt.beginPath();
@@ -123,9 +125,9 @@ function drawComputer(index) {
 	graphics.mark(ComputerList[index].x * xside, ComputerList[index].y * yside, xside, yside);
 }
 
-function findComputer(x,y) {
-	var xpos = Math.floor(x / graphics.width * grid.width);
-	var ypos = Math.floor(y / graphics.height * grid.height);
+function findComputer(xx,yy) {
+	var xpos = Math.floor(xx / graphics.width * grid.width);
+	var ypos = Math.floor(yy / graphics.height * grid.height);
 	
 	for (var i=0;i<ComputerList.length;i++)
 		if (ComputerList[i].x == xpos && ComputerList[i].y == ypos)
@@ -133,19 +135,54 @@ function findComputer(x,y) {
 	return -1;
 }
 
+function managePause() {
+	var xside = graphics.width / grid.width;
+	var yside = graphics.height / grid.height;
+	//var x = graphics.width / 2 - xside / 2;
+	//var y = graphics.height / 2 - yside / 2;
+	var x = 100;
+	var y = 100;
+	
+	if (!Paused) {
+		Paused = true;
+		
+		var ctxt = graphics.getContext( graphics.computersLayer );
+		
+		ctxt.fillStyle = "#44FF44";
+		ctxt.beginPath();
+		ctxt.moveTo(x,y);
+		ctxt.lineTo(x + xside, y+yside/2);
+		ctxt.lineTo(x, y+yside);
+		ctxt.closePath();
+		ctxt.fill();
+		graphics.mark(x,y,xside,yside);
+	} else {
+		if (mouseManager.x >= x && mouseManager.x <= x + xside &&
+			mouseManager.y >= y && mouseManager.y <= y + yside)
+			{
+				Paused = false;
+				var ctxt = graphics.getContext( graphics.computersLayer );
+				ctxt.clearRect(x,y,xside,yside);
+				graphics.mark(x,y,xside,yside);
+			}
+	}
+	
+	graphics.redraw();
+}
+
 function pressed() 
 {
+	managePause();
+	
+	if (!Paused)
+		return;
+		
 	// find which computer was pressed
 	var computerIndex = findComputer(mouseManager.x, mouseManager.y);
 	if (computerIndex == -1)
 		return;
-		
-//	if (ComputerList[computerIndex].selected)
-//		ComputerList[computerIndex].selected = false;
-//	else
-//		ComputerList[computerIndex].selected = true;
 
-	if (ComputerList[computerIndex].owner == playerIndex)
+	if (ComputerList[computerIndex].owner == playerIndex && selectedComputer == -1)
 		selectedComputer = computerIndex;
 	else
 		if ((selectedComputer != -1) && 
@@ -153,7 +190,7 @@ function pressed()
 			var newOrder = {
 				from: selectedComputer,
 				to: computerIndex,
-				threshold: ComputerList[selectedComputer].pop,
+				threshold: ComputerList[selectedComputer].pop/3,
 				strength: Math.floor(ComputerList[selectedComputer].pop / 2),
 				loop: false
 			}
@@ -187,6 +224,9 @@ function drawPop(index)
 
 function manageTurn() 
 {
+	if (Paused)
+		return;
+		
 	// first: increase population
 	for (var i=0; i<ComputerList.length; i++)
 		if (ComputerList[i].owner != 0)
@@ -207,11 +247,15 @@ function manageTurn()
 				ComputerList[i].pop -= order.strength;
 				
 				if (!order.loop) {
-					ComputerList[i].orders.splice(o, 1);
-					o--;
+					order.deleteNow = true;
 				}
 			}
 		}
+		// purge order lists
+		for (var o = ComputerList[i].orders.length - 1; o>=0; o--)
+			if (ComputerList[i].orders[o].deleteNow)
+				ComputerList[i].orders.splice(o, 1);
+	
 	}
 	
 	// the packets advance
