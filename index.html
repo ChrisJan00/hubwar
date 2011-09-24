@@ -3,16 +3,27 @@
 <title>HubWar</title>
 <script type="text/javascript" src="gameloop.js"></script>
 <script type="text/javascript" src="graphicsmanager.js"></script>
-<script type="text/javascript" src="gamedata.js"></script>
+<script type="text/javascript" src="computerlist.js"></script>
 <script type="text/javascript" src="main.js"></script>
 
 </head>
 
 <body onload="launchGame();" bgcolor="#FFFFFF" style="font-family:sans-serif">
-
+<div id="viewport">
+	
 <canvas id="gameCanvas" style="image-rendering: 
 optimizespeed ! important; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);" moz-opaque=""
 width="800" height="600"></canvas>
+
+<canvas id="optionsmenu"
+style="image-rendering: 
+optimizespeed ! important; -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+position: absolute;
+top: 100;
+left: 260" moz-opaque=""
+width="0" height="0"></canvas>
+
+</div>
 
 </body>
 </html>
