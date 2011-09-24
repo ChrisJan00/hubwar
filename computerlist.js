@@ -18,7 +18,7 @@ ComputerList = [
 		pop: 10,
 		rate: 3,
 		links: [ 0, 2 ],
-		owner: 0,
+		owner: 1,
 		orders: [],
 	},
 	// 2
@@ -28,7 +28,7 @@ ComputerList = [
 		pop: 10,
 		rate: 3,
 		links: [ 0, 1 ],
-		owner: 0,
+		owner: 2,
 		orders: [],
 	}
 	
