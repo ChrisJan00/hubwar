@@ -4,26 +4,20 @@ ComputerList = [
 	{
 		x: 10,
 		y: 2,
-<<<<<<< HEAD
 		pop: 3,
 		rate: 1,
-=======
->>>>>>> origin/gh-pages
 		links: [ 1, 2 ],
 		owner: 1,
 		orders: [],
 	},
 	// 1
 	{
-<<<<<<< HEAD
 		x: 7,
 		y: 5,
 		pop: 1,
 		rate: 1,
 		links: [ 0, 4 ],
 		owner: 0,
-=======
->>>>>>> origin/gh-pages
 		orders: [],
 	},
 	// 2
@@ -90,13 +84,10 @@ ComputerList = [
 	{
 		x: 10,
 		y: 18,
-<<<<<<< HEAD
 		pop: 1,
 		rate: 1,
 		links: [ 6, 7 ],
 		owner: 2,
-=======
->>>>>>> origin/gh-pages
 		orders: [],
 	}
 
